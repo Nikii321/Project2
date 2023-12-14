@@ -1,47 +1,34 @@
 package com.example.untitled13.controller;
 
+import com.example.untitled13.entity.JwtAuthenticationModel;
+import com.example.untitled13.entity.Role;
 import com.example.untitled13.entity.User;
+import com.example.untitled13.service.JWTUtils;
 import com.example.untitled13.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
+@RequestMapping("/sign")
 public class RegistrationController {
 
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JWTUtils jwtUtils;
 
-
-    @GetMapping("/registration")
-    public String registration(Model model) {
-        model.addAttribute("userForm", new User());
-
-        return "registration";
+    @PostMapping("/Up")
+    public String signUp(@RequestBody JwtAuthenticationModel model){
+        User user = new User();
+        user.setUsername(model.getUsername());
+        user.setPassword(model.getPassword());
+        user = userService.saveUser(user);
+        return jwtUtils.generateToken(user.getUsername(), user.getPassword(), user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
     }
 
-    @PostMapping("/registration")
-    public String addUser(@ModelAttribute("userForm") @Valid User userForm, BindingResult bindingResult, Model model) {
-
-        if (bindingResult.hasErrors()) {
-            return "registration";
-        }
-        if (!userForm.getPassword().equals(userForm.getPasswordConfirm())){
-            model.addAttribute("passwordError", "Пароли не совпадают");
-            return "registration";
-        }
-        if (!userService.saveUser(userForm)){
-            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
-            return "registration";
-        }
-
-        return "redirect:/";
-    }
 }

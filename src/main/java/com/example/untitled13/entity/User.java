@@ -2,11 +2,9 @@ package com.example.untitled13.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -16,22 +14,29 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Size(min=2, message = "Не меньше 5 знаков")
+    @Size(min = 2, message = "Не меньше 5 знаков")
     @Column(name = "username")
     private String username;
-    @Size(min=2, message = "Не меньше 5 знаков")
+
+    @Size(min = 2, message = "Не меньше 5 знаков")
     @Column(name = "password")
     private String password;
-    @Transient
-    private String passwordConfirm;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "t_user_roles",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "roles_id"))
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "roles_id"))
     private Set<Role> roles;
 
+    @Version
+    private Long version;
 
+    public Long getVersion() {
+        return version;
+    }
 
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
     public User() {
     }
@@ -85,14 +90,6 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getPasswordConfirm() {
-        return passwordConfirm;
-    }
-
-    public void setPasswordConfirm(String passwordConfirm) {
-        this.passwordConfirm = passwordConfirm;
     }
 
     public Set<Role> getRoles() {

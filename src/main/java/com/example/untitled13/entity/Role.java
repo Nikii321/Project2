@@ -1,12 +1,11 @@
 package com.example.untitled13.entity;
 
 import org.springframework.security.core.GrantedAuthority;
-
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "t_role")
 public class Role implements GrantedAuthority {
     @Id
     @Column(name = "id")
