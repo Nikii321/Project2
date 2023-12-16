@@ -13,6 +13,16 @@ public class ProductInfo {
     @Enumerated(EnumType.STRING)
     private ProductType type;
 
+    private String filePath;
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
     private String description;
 
     @Enumerated(EnumType.STRING)

@@ -1,6 +1,7 @@
 package com.example.untitled13.config.filter;
 
 import com.example.untitled13.entity.JwtAuthenticationModel;
+import com.example.untitled13.entity.User;
 import com.example.untitled13.service.JWTUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +44,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        String token = jwtUtils.generateToken(authResult.getName(), (String) authResult.getCredentials(), authResult.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        User user = (User) authResult.getPrincipal();
+        String token = jwtUtils.generateToken(user.getUsername(), user.getPassword(), authResult.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         response.addHeader(HttpHeaders.AUTHORIZATION, token);
         response.addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(mapper.writeValueAsBytes(token));
