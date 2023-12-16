@@ -15,12 +15,23 @@ public class ProductInfo {
 
     private String filePath;
 
+    private String contentType;
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
     public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath) {
+    public void setFilePath(String filePath, String contentType) {
         this.filePath = filePath;
+        this.contentType = contentType;
     }
 
     private String description;

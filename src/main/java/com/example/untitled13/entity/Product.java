@@ -28,6 +28,8 @@ public class Product {
         this.version = version;
     }
 
+
+
     public Long getId() {
         return id;
     }

@@ -1,5 +1,6 @@
 package com.example.untitled13.service;
 
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -26,9 +29,10 @@ public class FilesStorageService {
         }
     }
 
-    public String save(MultipartFile file, Long productId) {
+    public String save(MultipartFile file) {
         try {
-            String name = productId+file.getOriginalFilename();
+            String[] str = Objects.requireNonNull(file.getOriginalFilename()).split("\\.");
+            String name = UUID.randomUUID().toString()+"."+ str[str.length-1];
             Files.copy(file.getInputStream(), this.root.resolve(name));
             return name;
         } catch (Exception e) {
@@ -40,23 +44,23 @@ public class FilesStorageService {
         }
     }
 
-    public Resource load(String filename, Long productId) {
+    public Resource load(String filename) {
         try {
-            Path file = root.resolve(productId+filename);
-            Resource resource = new UrlResource(file.toUri());
+            Path file = root.resolve(filename);
+            Resource resource = new FileSystemResource(file);
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             } else {
                 throw new RuntimeException("Could not read the file!");
             }
-        } catch (MalformedURLException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
 
-    public void delete(String filename, Long productId) {
+    public void delete(String filename) {
         try {
-            Path file = root.resolve(productId+filename);
+            Path file = root.resolve(filename);
             FileSystemUtils.deleteRecursively(file);
         } catch (MalformedURLException e) {
             throw new RuntimeException("Error: " + e.getMessage());

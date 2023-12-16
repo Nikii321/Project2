@@ -5,6 +5,8 @@ import com.example.untitled13.service.FilesStorageService;
 import com.example.untitled13.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,8 +23,8 @@ public class FileController {
     @PostMapping("/{productId}")
     public String saveFile(@RequestParam("file")MultipartFile file, @PathVariable("productId") Long id){
         Product product = productService.findProductById(id).orElseThrow(()-> new RuntimeException("Not found product"));
-        String name = filesStorageService.save(file, id);
-        product.getProductInfo().setFilePath(name);
+        String name = filesStorageService.save(file);
+        product.getProductInfo().setFilePath(name, file.getContentType());
         productService.saveProduct(product);
         return "file upload";
     }
@@ -30,13 +32,15 @@ public class FileController {
     @DeleteMapping("/{productId}")
     public String deleteMapping(@PathVariable("productId") Long id){
         Product product = productService.findProductById(id).orElseThrow(()-> new RuntimeException("Not found product"));
-        filesStorageService.delete(product.getProductInfo().getFilePath(), product.getId());
+        filesStorageService.delete(product.getProductInfo().getFilePath());
+        product.getProductInfo().setFilePath(null, null);
+        productService.saveProduct(product);
         return "file deleted";
     }
 
     @GetMapping("/{productId}")
-    public Resource findByProduct(@PathVariable("productId") Long id){
+    public ResponseEntity<Resource> findByProduct(@PathVariable("productId") Long id){
         Product product = productService.findProductById(id).orElseThrow(()-> new RuntimeException("Not found product"));
-        return filesStorageService.load(product.getProductInfo().getFilePath(), product.getId());
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(product.getProductInfo().getContentType())).body(filesStorageService.load(product.getProductInfo().getFilePath()));
     }
 }
